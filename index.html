@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chadwick Games — Play Beyond the Screen</title>
+  <meta name="description" content="Chadwick Games creates bold, imaginative mobile games. Play Ninjas vs. Pirates, DropLetters, and Paws vs. Claws on iOS." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── RESET & BASE ─────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #080c14;
+      --surface:   #0f1624;
+      --surface2:  #131d2e;
+      --border:    rgba(255,255,255,0.07);
+      --gold:      #f5c842;
+      --gold2:     #e8a020;
+      --red:       #ff3c3c;
+      --cyan:      #00e5ff;
+      --green:     #39ff8a;
+      --purple:    #b06fff;
+      --text:      #e8edf5;
+      --muted:     #7a8499;
+      --r:         18px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ─── NOISE OVERLAY ─────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0; opacity: 0.6;
+    }
+
+    /* ─── NAV ─────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(20px, 5vw, 72px);
+      height: 68px;
+      background: rgba(8, 12, 20, 0.85);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.7rem;
+      letter-spacing: 0.06em;
+      color: var(--gold);
+    }
+    .nav-logo span { color: var(--text); }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a {
+      font-size: 0.85rem; font-weight: 600; letter-spacing: 0.08em;
+      color: var(--muted); text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      padding: 8px 20px;
+      background: var(--gold); color: #080c14 !important;
+      border-radius: 6px; font-weight: 700 !important;
+      transition: background 0.2s !important;
+    }
+    .nav-cta:hover { background: var(--gold2) !important; color: #080c14 !important; }
+
+    /* ─── HERO ─────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px clamp(20px, 6vw, 80px) 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(245,200,66,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,200,66,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero-glow {
+      position: absolute;
+      width: 700px; height: 700px;
+      background: radial-gradient(ellipse, rgba(245,200,66,0.12) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%, -60%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem; letter-spacing: 0.18em;
+      color: var(--gold); text-transform: uppercase;
+      margin-bottom: 24px;
+      animation: fadeUp 0.7s ease both;
+    }
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 10vw, 9rem);
+      line-height: 0.92;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+    .hero-title em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      margin-top: 28px;
+      max-width: 540px;
+      font-size: 1.1rem; font-weight: 400;
+      color: var(--muted); line-height: 1.7;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+    .hero-btns {
+      margin-top: 44px; display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+    .btn-primary {
+      padding: 16px 36px;
+      background: var(--gold); color: #080c14;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem; font-weight: 700; letter-spacing: 0.04em;
+      border-radius: 8px; cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      border: none;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(245,200,66,0.3);
+    }
+    .btn-outline {
+      padding: 16px 36px;
+      background: transparent; color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem; font-weight: 700; letter-spacing: 0.04em;
+      border-radius: 8px; cursor: pointer;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--gold); background: rgba(245,200,66,0.05); }
+
+    /* hero pixel sprites */
+    .hero-sprites {
+      margin-top: 56px;
+      display: flex; gap: 40px; justify-content: center; align-items: flex-end;
+      animation: fadeUp 0.7s 0.4s ease both;
+    }
+    .sprite {
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    .sprite-icon { font-size: 3.5rem; line-height: 1; filter: drop-shadow(0 0 12px currentColor); }
+    .sprite-label {
+      font-family: 'Space Mono', monospace; font-size: 0.65rem;
+      color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .sprite-ninja .sprite-icon { color: #ff3c3c; filter: drop-shadow(0 0 12px #ff3c3c); }
+    .sprite-pirate .sprite-icon { color: var(--cyan); filter: drop-shadow(0 0 12px var(--cyan)); }
+    .sprite-drop .sprite-icon { color: var(--purple); filter: drop-shadow(0 0 12px var(--purple)); }
+    .sprite-paws .sprite-icon { color: var(--green); filter: drop-shadow(0 0 12px var(--green)); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── SECTION CHROME ───────────────────────────────── */
+    section { position: relative; z-index: 1; }
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      letter-spacing: 0.02em; line-height: 1;
+      color: var(--text);
+    }
+    .section-body {
+      color: var(--muted); font-size: 1rem;
+      line-height: 1.75; max-width: 560px;
+    }
+    .wrapper {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 clamp(20px, 5vw, 60px);
+    }
+
+    /* ─── DIVIDER ──────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border) 30%, var(--border) 70%, transparent);
+    }
+
+    /* ─── GAMES SECTION ────────────────────────────────── */
+    #games {
+      padding: 120px 0;
+    }
+    .games-header {
+      text-align: center; margin-bottom: 80px;
+    }
+    .games-grid {
+      display: flex; flex-direction: column; gap: 80px;
+    }
+    .game-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .game-card.reverse { direction: rtl; }
+    .game-card.reverse > * { direction: ltr; }
+    .game-visual {
+      position: relative;
+      border-radius: var(--r);
+      overflow: hidden;
+      aspect-ratio: 1 / 1.1;
+      max-width: 440px;
+    }
+    .game-bg {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px;
+      font-size: 5rem;
+      position: relative;
+    }
+    /* Ninjas vs Pirates */
+    .nvp-bg {
+      background: linear-gradient(145deg, #1a0510 0%, #200a30 50%, #0a101f 100%);
+      border: 1px solid rgba(255,60,60,0.2);
+    }
+    .nvp-bg::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 40%, rgba(255,60,60,0.18), transparent 55%),
+                  radial-gradient(ellipse at 70% 60%, rgba(0,229,255,0.15), transparent 55%);
+    }
+    /* DropLetters */
+    .dl-bg {
+      background: linear-gradient(145deg, #0d0820 0%, #180a30 50%, #08141a 100%);
+      border: 1px solid rgba(176,111,255,0.2);
+    }
+    .dl-bg::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 30%, rgba(176,111,255,0.22), transparent 55%);
+    }
+    /* Paws vs Claws */
+    .pc-bg {
+      background: linear-gradient(145deg, #051510 0%, #0a2010 50%, #050d18 100%);
+      border: 1px solid rgba(57,255,138,0.2);
+    }
+    .pc-bg::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 60%, rgba(57,255,138,0.18), transparent 55%);
+    }
+
+    /* floating emojis in game visual */
+    .game-emoji-row {
+      display: flex; gap: 20px; align-items: center; z-index: 1; position: relative;
+    }
+    .game-emoji-row span { font-size: 4.5rem; line-height: 1; }
+    .vs-badge {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem; letter-spacing: 0.1em;
+      padding: 6px 16px;
+      border-radius: 40px;
+      z-index: 1; position: relative;
+    }
+    .vs-red { background: rgba(255,60,60,0.15); color: var(--red); border: 1px solid rgba(255,60,60,0.4); }
+    .vs-purple { background: rgba(176,111,255,0.15); color: var(--purple); border: 1px solid rgba(176,111,255,0.4); }
+    .vs-green { background: rgba(57,255,138,0.15); color: var(--green); border: 1px solid rgba(57,255,138,0.4); }
+
+    /* drop-letters tiles */
+    .dl-tiles {
+      display: flex; gap: 8px; z-index: 1; position: relative; flex-wrap: wrap;
+      justify-content: center; max-width: 240px;
+    }
+    .dl-tile {
+      width: 52px; height: 52px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem; letter-spacing: 0.04em;
+    }
+    .dl-tile.filled { background: rgba(176,111,255,0.25); border: 1.5px solid rgba(176,111,255,0.5); color: #fff; }
+    .dl-tile.empty  { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.1); }
+    .dl-tile.gold   { background: rgba(245,200,66,0.2);   border: 1.5px solid rgba(245,200,66,0.5); color: var(--gold); }
+
+    .game-tag {
+      display: inline-flex; align-items: center;
+      padding: 4px 12px; border-radius: 20px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 16px;
+    }
+    .tag-red    { background: rgba(255,60,60,0.1);    color: var(--red);    border: 1px solid rgba(255,60,60,0.3); }
+    .tag-purple { background: rgba(176,111,255,0.1);  color: var(--purple); border: 1px solid rgba(176,111,255,0.3); }
+    .tag-green  { background: rgba(57,255,138,0.1);   color: var(--green);  border: 1px solid rgba(57,255,138,0.3); }
+
+    .game-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.6rem, 4vw, 3.6rem);
+      letter-spacing: 0.04em; line-height: 1;
+      margin-bottom: 18px;
+    }
+    .game-desc {
+      color: var(--muted); font-size: 0.98rem;
+      line-height: 1.75; margin-bottom: 28px;
+    }
+    .game-features {
+      list-style: none; display: flex; flex-direction: column; gap: 10px;
+      margin-bottom: 32px;
+    }
+    .game-features li {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 0.92rem; color: var(--muted);
+    }
+    .game-features li::before {
+      content: '→'; font-family: 'Space Mono', monospace;
+      font-size: 0.78rem; margin-top: 3px; flex-shrink: 0;
+    }
+    .tag-red + .game-name + .game-desc + .game-features li::before    { color: var(--red); }
+    .tag-purple + .game-name + .game-desc + .game-features li::before  { color: var(--purple); }
+    .tag-green + .game-name + .game-desc + .game-features li::before   { color: var(--green); }
+
+    .appstore-btn {
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 13px 24px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      cursor: pointer;
+    }
+    .appstore-btn:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.25);
+      transform: translateY(-2px);
+    }
+    .appstore-btn svg { width: 20px; height: 20px; fill: white; flex-shrink: 0; }
+    .appstore-btn-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .appstore-btn-text small {
+      font-size: 0.62rem; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(255,255,255,0.6);
+    }
+    .appstore-btn-text strong {
+      font-size: 0.95rem; font-weight: 700; font-family: 'Syne', sans-serif;
+    }
+
+    /* ─── ABOUT STRIP ──────────────────────────────────── */
+    #about {
+      padding: 100px 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .about-inner {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+    }
+    .about-stats {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+    .stat-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r); padding: 28px;
+    }
+    .stat-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem; color: var(--gold);
+      line-height: 1; margin-bottom: 6px;
+    }
+    .stat-label {
+      font-size: 0.8rem; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.08em; font-weight: 600;
+    }
+
+    /* ─── PRIVACY POLICY ───────────────────────────────── */
+    #privacy {
+      padding: 100px 0;
+    }
+    .privacy-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: clamp(36px, 5vw, 64px);
+    }
+    .privacy-card h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem; letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+    .privacy-meta {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem; color: var(--muted);
+      letter-spacing: 0.08em; margin-bottom: 36px;
+    }
+    .privacy-section { margin-bottom: 36px; }
+    .privacy-section h3 {
+      font-size: 1.05rem; font-weight: 700;
+      color: var(--gold); margin-bottom: 10px;
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 0.04em;
+    }
+    .privacy-section p, .privacy-section ul {
+      color: var(--muted); font-size: 0.95rem; line-height: 1.8;
+    }
+    .privacy-section ul { padding-left: 18px; }
+    .privacy-section ul li { margin-bottom: 6px; }
+    .privacy-section a { color: var(--gold); border-bottom: 1px solid rgba(245,200,66,0.3); }
+
+    /* ─── SUPPORT ──────────────────────────────────────── */
+    #support {
+      padding: 100px 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .support-inner {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start;
+    }
+    .support-faqs { display: flex; flex-direction: column; gap: 20px; }
+    .faq {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px 28px;
+    }
+    .faq-q {
+      font-size: 0.95rem; font-weight: 700; margin-bottom: 8px;
+    }
+    .faq-a { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+    .contact-box {
+      background: linear-gradient(145deg, #0f1a10, #0a1520);
+      border: 1px solid rgba(57,255,138,0.2);
+      border-radius: var(--r); padding: 40px;
+      position: sticky; top: 100px;
+    }
+    .contact-box h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem; letter-spacing: 0.04em;
+      margin-bottom: 12px;
+    }
+    .contact-box p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; margin-bottom: 28px; }
+    .contact-link {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 28px;
+      background: var(--green); color: #050d0a;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.82rem; font-weight: 700; letter-spacing: 0.06em;
+      border-radius: 8px;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .contact-link:hover { opacity: 0.88; transform: translateY(-2px); }
+    .response-note {
+      margin-top: 18px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem; color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ─── FOOTER ───────────────────────────────────────── */
+    footer {
+      padding: 60px 0 40px;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem; letter-spacing: 0.06em; color: var(--gold);
+      margin-bottom: 20px;
+    }
+    .footer-nav {
+      display: flex; gap: 28px; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+    .footer-nav a {
+      font-size: 0.82rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--muted);
+      transition: color 0.2s;
+    }
+    .footer-nav a:hover { color: var(--text); }
+    .footer-legal {
+      font-size: 0.78rem; color: var(--muted); line-height: 1.7;
+    }
+    .footer-legal a { color: var(--muted); border-bottom: 1px solid rgba(255,255,255,0.15); }
+
+    /* ─── COMING SOON BADGE ────────────────────────────── */
+    .coming-soon-badge {
+      display: inline-flex; align-items: center; gap: 14px;
+      padding: 14px 22px;
+      border-radius: 12px;
+      position: relative; overflow: hidden;
+      cursor: default; user-select: none;
+    }
+    .coming-soon-badge::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        -55deg,
+        transparent,
+        transparent 6px,
+        rgba(255,255,255,0.025) 6px,
+        rgba(255,255,255,0.025) 12px
+      );
+    }
+    .badge-red    { background: rgba(255,60,60,0.1);   border: 1.5px solid rgba(255,60,60,0.35); }
+    .badge-purple { background: rgba(176,111,255,0.1); border: 1.5px solid rgba(176,111,255,0.35); }
+    .badge-green  { background: rgba(57,255,138,0.1);  border: 1.5px solid rgba(57,255,138,0.35); }
+    .cs-icon { font-size: 1.6rem; line-height: 1; z-index: 1;
+      animation: rocketBob 2.4s ease-in-out infinite; }
+    @keyframes rocketBob {
+      0%, 100% { transform: translateY(0) rotate(-10deg); }
+      50%       { transform: translateY(-5px) rotate(-10deg); }
+    }
+    .cs-text { display: flex; flex-direction: column; line-height: 1.25; z-index: 1; }
+    .cs-text small {
+      font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+    }
+    .cs-text strong { font-size: 1rem; font-weight: 700; font-family: 'Syne', sans-serif; color: var(--text); }
+    .cs-pill {
+      z-index: 1;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 5px 12px; border-radius: 20px;
+      animation: pillPulse 2s ease-in-out infinite;
+    }
+    .badge-red    .cs-pill { background: rgba(255,60,60,0.2);   color: var(--red);    border: 1px solid rgba(255,60,60,0.5); }
+    .badge-purple .cs-pill { background: rgba(176,111,255,0.2); color: var(--purple); border: 1px solid rgba(176,111,255,0.5); }
+    .badge-green  .cs-pill { background: rgba(57,255,138,0.2);  color: var(--green);  border: 1px solid rgba(57,255,138,0.5); }
+    @keyframes pillPulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.55; }
+    }
+
+    /* ─── SCROLL REVEAL ────────────────────────────────── */
+    .reveal {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── RESPONSIVE ───────────────────────────────────── */
+    @media (max-width: 800px) {
+      .game-card { grid-template-columns: 1fr; gap: 36px; }
+      .game-card.reverse { direction: ltr; }
+      .game-visual { max-width: 100%; }
+      .about-inner { grid-template-columns: 1fr; }
+      .support-inner { grid-template-columns: 1fr; }
+      .contact-box { position: static; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 500px) {
+      .about-stats { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Chadwick<span>Games</span></div>
+  <div class="nav-links">
+    <a href="#games">Games</a>
+    <a href="#about">About</a>
+    <a href="#privacy">Privacy</a>
+    <a href="#support">Support</a>
+    <a href="#support" class="nav-cta">Contact Us</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <p class="hero-eyebrow">// Chadwick Games — Independent Mobile Studio</p>
+  <h1 class="hero-title">Play <em>Beyond</em><br/>The Screen</h1>
+  <p class="hero-sub">Bold, imaginative games built for iOS. Choose your side, drop the right letter, or pick your animal — every game is a battle worth having.</p>
+  <div class="hero-btns">
+    <a href="#games" class="btn-primary">See Our Games</a>
+    <a href="#support" class="btn-outline">Get Support</a>
+  </div>
+  <div class="hero-sprites">
+    <div class="sprite sprite-ninja">
+      <div class="sprite-icon">🥷</div>
+      <div class="sprite-label">Ninja</div>
+    </div>
+    <div class="sprite sprite-pirate">
+      <div class="sprite-icon">🏴‍☠️</div>
+      <div class="sprite-label">Pirate</div>
+    </div>
+    <div class="sprite sprite-drop">
+      <div class="sprite-icon">🔤</div>
+      <div class="sprite-label">Letters</div>
+    </div>
+    <div class="sprite sprite-paws">
+      <div class="sprite-icon">🐾</div>
+      <div class="sprite-label">Animals</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- GAMES -->
+<section id="games">
+  <div class="wrapper">
+    <div class="games-header reveal">
+      <p class="section-label">// Our Games</p>
+      <h2 class="section-title">Three Worlds.<br/>One Studio.</h2>
+    </div>
+
+    <div class="games-grid">
+
+      <!-- Ninjas vs Pirates -->
+      <div class="game-card reveal">
+        <div class="game-visual">
+          <div class="game-bg nvp-bg">
+            <div class="game-emoji-row">
+              <span>🥷</span>
+              <span style="font-size:2rem;color:rgba(255,255,255,0.2)">⚔️</span>
+              <span>🏴‍☠️</span>
+            </div>
+            <div class="vs-badge vs-red">Ninjas vs. Pirates</div>
+            <div style="font-size:0.7rem;font-family:'Space Mono',monospace;color:rgba(255,255,255,0.25);letter-spacing:0.12em;z-index:1">CHOOSE YOUR SIDE</div>
+          </div>
+        </div>
+        <div class="game-info">
+          <span class="game-tag tag-red">Adventure · Story</span>
+          <h3 class="game-name">Ninjas vs.<br/>Pirates</h3>
+          <p class="game-desc">A pixel-art adventure where ancient rivalry meets modern decisions. Navigate through rival taverns, haunted docks, and mountain dojos — your choices shape who wins the legendary feud between shadow warriors and sea rogues.</p>
+          <ul class="game-features" style="--arrow-color:var(--red)">
+            <li style="--c:var(--red)">Branching narrative with multiple endings</li>
+            <li>Retro pixel-art visuals with 8-bit soundtrack</li>
+            <li>Tactical mini-games: riddles, duels &amp; coin tosses</li>
+            <li>Replayable — every run tells a different story</li>
+          </ul>
+          <ul class="game-features" style="display:none"></ul>
+          <div class="coming-soon-badge badge-red">
+            <span class="cs-icon">🚀</span>
+            <div class="cs-text">
+              <small>Available Soon on the</small>
+              <strong>App Store</strong>
+            </div>
+            <span class="cs-pill">Coming Soon</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DropLetters -->
+      <div class="game-card reverse reveal">
+        <div class="game-visual">
+          <div class="game-bg dl-bg">
+            <div class="dl-tiles">
+              <div class="dl-tile gold">D</div>
+              <div class="dl-tile filled">R</div>
+              <div class="dl-tile filled">O</div>
+              <div class="dl-tile filled">P</div>
+              <div class="dl-tile empty"></div>
+              <div class="dl-tile empty"></div>
+              <div class="dl-tile filled">L</div>
+              <div class="dl-tile gold">E</div>
+              <div class="dl-tile filled">T</div>
+              <div class="dl-tile filled">T</div>
+              <div class="dl-tile filled">E</div>
+              <div class="dl-tile filled">R</div>
+            </div>
+            <div class="vs-badge vs-purple" style="margin-top:8px;">4 Guesses Left</div>
+          </div>
+        </div>
+        <div class="game-info">
+          <span class="game-tag tag-purple">Word · Puzzle</span>
+          <h3 class="game-name">Drop<br/>Letters</h3>
+          <p class="game-desc">A sleek, daily word-puzzle challenge where letters fall like rain and every guess counts. Unscramble the hidden word before your chances run out — fresh puzzles every single day, with leaderboards to keep the competition hot.</p>
+          <ul class="game-features">
+            <li>New puzzle every day — no repeats</li>
+            <li>Global daily leaderboards &amp; personal streaks</li>
+            <li>Colorblind-accessible tile themes</li>
+            <li>Hint system for when you're truly stuck</li>
+          </ul>
+          <div class="coming-soon-badge badge-purple">
+            <span class="cs-icon">🚀</span>
+            <div class="cs-text">
+              <small>Available Soon on the</small>
+              <strong>App Store</strong>
+            </div>
+            <span class="cs-pill">Coming Soon</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paws vs Claws -->
+      <div class="game-card reveal">
+        <div class="game-visual">
+          <div class="game-bg pc-bg">
+            <div class="game-emoji-row">
+              <span>🐶</span>
+              <span style="font-size:2rem;color:rgba(255,255,255,0.2)">🆚</span>
+              <span>🐱</span>
+            </div>
+            <div class="vs-badge vs-green">Paws vs. Claws</div>
+            <div style="font-size:0.7rem;font-family:'Space Mono',monospace;color:rgba(255,255,255,0.25);letter-spacing:0.12em;z-index:1">DOGS · CATS · BATTLE</div>
+          </div>
+        </div>
+        <div class="game-info">
+          <span class="game-tag tag-green">Strategy · Casual</span>
+          <h3 class="game-name">Paws vs.<br/>Claws</h3>
+          <p class="game-desc">The eternal debate finally settled — in game form. Command your team of loyal pups or cunning cats across quirky arenas, collect power-ups, and prove once and for all which species reigns supreme.</p>
+          <ul class="game-features">
+            <li>40+ unique animal characters to unlock</li>
+            <li>Real-time PvP &amp; single-player campaign modes</li>
+            <li>Seasonal events with exclusive rewards</li>
+            <li>No pay-to-win — skill always wins here</li>
+          </ul>
+          <div class="coming-soon-badge badge-green">
+            <span class="cs-icon">🚀</span>
+            <div class="cs-text">
+              <small>Available Soon on the</small>
+              <strong>App Store</strong>
+            </div>
+            <span class="cs-pill">Coming Soon</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /games-grid -->
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="wrapper">
+    <div class="about-inner">
+      <div class="reveal">
+        <p class="section-label">// About Chadwick Games</p>
+        <h2 class="section-title" style="margin-bottom:24px;">Games Worth<br/>Playing Again</h2>
+        <p class="section-body">Chadwick Games is an independent mobile studio building original games that respect players' time and intelligence. No dark patterns. No energy timers. Just games.</p>
+        <p class="section-body" style="margin-top:16px;">Our titles span adventure narratives, word puzzles, and strategy — united by sharp design, honest mechanics, and a deep love for the art of play.</p>
+      </div>
+      <div class="about-stats reveal">
+        <div class="stat-card">
+          <div class="stat-number">3</div>
+          <div class="stat-label">iOS Games</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">0</div>
+          <div class="stat-label">Pay-to-Win</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PRIVACY POLICY -->
+<section id="privacy">
+  <div class="wrapper">
+    <div class="reveal">
+      <p class="section-label">// Legal</p>
+      <h2 class="section-title" style="margin-bottom:48px;">Privacy Policy</h2>
+    </div>
+    <div class="privacy-card reveal">
+      <h2>Chadwick Games Privacy Policy</h2>
+      <p class="privacy-meta">LAST UPDATED: MARCH 29, 2025 &nbsp;|&nbsp; EFFECTIVE FOR ALL CHADWICK GAMES APPS</p>
+
+      <div class="privacy-section">
+        <h3>1. Introduction</h3>
+        <p>Chadwick Games ("we," "us," or "our") operates the mobile games Ninjas vs. Pirates, DropLetters, and Paws vs. Claws (collectively, the "Apps"). This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our Apps. Please read this policy carefully. If you disagree with its terms, please discontinue use of the Apps.</p>
+      </div>
+
+      <div class="privacy-section">
+        <h3>2. Information We Collect</h3>
+        <p>We collect only the minimum information required to operate our games:</p>
+        <ul>
+          <li><strong>Device data:</strong> Device type, operating system version, and unique device identifier (used only for crash reporting and game-save syncing).</li>
+          <li><strong>Game progress data:</strong> Scores, achievements, and in-game preferences stored locally on your device and, where enabled, in iCloud.</li>
+          <li><strong>Leaderboard data (DropLetters):</strong> A display name chosen by you and your daily puzzle score, stored to display on the global leaderboard.</li>
+          <li><strong>Crash &amp; diagnostic data:</strong> Anonymous crash logs to help us fix bugs, collected only with your consent via the iOS App Privacy prompt.</li>
+        </ul>
+      </div>
+
+      <div class="privacy-section">
+        <h3>3. Information We Do Not Collect</h3>
+        <p>We do not collect, store, or share:</p>
+        <ul>
+          <li>Your name, email address, or any other personally identifying information</li>
+          <li>Location data of any kind</li>
+          <li>Contact lists, photos, microphone, or camera data</li>
+          <li>Payment information (all purchases are handled securely by Apple)</li>
+          <li>Behavioral tracking data or cross-app advertising identifiers</li>
+        </ul>
+      </div>
+
+      <div class="privacy-section">
+        <h3>4. Advertising</h3>
+        <p>Our Apps contain no third-party advertising. We do not use advertising SDKs, ad networks, or behavioral targeting of any kind. We never sell your data to advertisers.</p>
+      </div>
+
+      <div class="privacy-section">
+        <h3>5. Children's Privacy</h3>
+        <p>Our Apps are suitable for all ages. We do not knowingly collect personal information from children under 13. Our Apps do not include social networking features, chat, or user-generated content visible to others, with the limited exception of anonymous daily puzzle scores in DropLetters.</p>
+      </div>
+
+      <div class="privacy-section">
+        <h3>6. Data Retention &amp; Deletion</h3>
+        <p>Game progress is stored locally on your device. Deleting the App removes all local data immediately. Anonymous crash logs are retained for 90 days and then permanently deleted. Leaderboard entries in DropLetters are retained for 365 days after last activity.</p>
+      </div>
+
+      <div class="privacy-section">
+        <h3>7. Third-Party Services</h3>
+        <p>Our Apps use Apple's native frameworks only (GameKit for leaderboards, CloudKit for save syncing, and StoreKit for in-app purchases). We do not integrate any third-party analytics, social login, or advertising SDKs. Apple's own privacy policy governs data processed through these native frameworks: <a href="https://www.apple.com/privacy/" target="_blank" rel="noopener">apple.com/privacy</a>.</p>
+      </div>
+
+      <div class="privacy-section">
+        <h3>8. Your Rights</h3>
+        <p>Depending on your jurisdiction, you may have rights to access, correct, or delete data we hold about you. Because we collect very little data, most requests can be fulfilled by deleting the App. For any remaining questions or requests, contact us at <a href="mailto:judgeis@yahoo.com">judgeis@yahoo.com</a> and we will respond within 30 days.</p>
+      </div>
+
+      <div class="privacy-section">
+        <h3>9. Changes to This Policy</h3>
+        <p>We may update this Privacy Policy from time to time. We will notify you of significant changes by updating the "Last Updated" date above and, where required by law, by providing notice within the App. Continued use of our Apps after any changes constitutes your acceptance of the revised policy.</p>
+      </div>
+
+      <div class="privacy-section">
+        <h3>10. Contact</h3>
+        <p>Questions or concerns about this Privacy Policy? Contact Chadwick Games at: <a href="mailto:judgeis@yahoo.com">judgeis@yahoo.com</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SUPPORT -->
+<section id="support">
+  <div class="wrapper">
+    <div style="margin-bottom:64px;" class="reveal">
+      <p class="section-label">// Support</p>
+      <h2 class="section-title" style="margin-bottom:16px;">We've Got You</h2>
+      <p class="section-body">Having trouble? We aim to respond to every support request within 48 hours.</p>
+    </div>
+    <div class="support-inner">
+      <div class="support-faqs">
+        <div class="faq reveal">
+          <p class="faq-q">I lost my game progress. How do I restore it?</p>
+          <p class="faq-a">For Ninjas vs. Pirates and Paws vs. Claws, your progress saves automatically to your device. If you've signed into iCloud on your device and enabled iCloud for the app in Settings, your save will transfer when you reinstall or move to a new phone.</p>
+        </div>
+        <div class="faq reveal">
+          <p class="faq-q">How do I restore my in-app purchases?</p>
+          <p class="faq-a">Open the game, go to Settings, and tap "Restore Purchases." Make sure you're signed into the same Apple ID used for the original purchase. Purchases are tied to your Apple ID and will restore at no additional charge.</p>
+        </div>
+        <div class="faq reveal">
+          <p class="faq-q">DropLetters isn't showing today's puzzle — what's wrong?</p>
+          <p class="faq-a">The daily puzzle resets at midnight in your local timezone. Make sure your device time is correct. If the puzzle still doesn't appear, try force-closing and reopening the app. If the issue persists, contact us with your device model and iOS version.</p>
+        </div>
+        <div class="faq reveal">
+          <p class="faq-q">The app crashes on launch. What should I do?</p>
+          <p class="faq-a">Try force-closing the app and reopening. If that doesn't work, ensure you're running the latest version of both the app and iOS. If the issue continues, email us at judgeis@yahoo.com and include your device model and iOS version.</p>
+        </div>
+        <div class="faq reveal">
+          <p class="faq-q">Can I request a refund?</p>
+          <p class="faq-a">All purchases are processed by Apple. To request a refund, visit <strong>reportaproblem.apple.com</strong> and follow Apple's refund process. We fully support legitimate refund requests and won't fight them.</p>
+        </div>
+      </div>
+      <div class="contact-box reveal">
+        <h3>📬 Email Support</h3>
+        <p>Can't find an answer above? Our support team reads every email personally and responds within 48 hours — usually much sooner.</p>
+        <a href="mailto:judgeis@yahoo.com" class="contact-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          judgeis@yahoo.com
+        </a>
+        <p class="response-note">⟳ &nbsp;TYPICAL RESPONSE: &lt;48 HOURS</p>
+        <div style="margin-top:32px;padding-top:28px;border-top:1px solid rgba(255,255,255,0.07);">
+          <p style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:12px;">When emailing, please include:</p>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;">
+            <li style="font-size:0.85rem;color:var(--muted);">→ &nbsp;Which game you're playing</li>
+            <li style="font-size:0.85rem;color:var(--muted);">→ &nbsp;Your iPhone model &amp; iOS version</li>
+            <li style="font-size:0.85rem;color:var(--muted);">→ &nbsp;A brief description of the issue</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrapper">
+    <div class="footer-logo">Chadwick Games</div>
+    <nav class="footer-nav">
+      <a href="#games">Games</a>
+      <a href="#about">About</a>
+      <a href="#privacy">Privacy Policy</a>
+      <a href="#support">Support</a>
+      <a href="mailto:judgeis@yahoo.com">Contact</a>
+    </nav>
+    <p class="footer-legal">
+      &copy; 2025 Chadwick Games. All rights reserved.<br/>
+      Apple and the App Store are trademarks of Apple Inc.<br/>
+      <a href="mailto:judgeis@yahoo.com">judgeis@yahoo.com</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
